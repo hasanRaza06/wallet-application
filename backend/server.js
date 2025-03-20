@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import { connectDB } from './db.js';
+import { signup, signin } from './controller/auth.js';
 
 dotenv.config();
 
@@ -19,6 +20,13 @@ connectDB();
 app.get("/",(req,res)=>{
     res.send("Hello from server");
 })
+
+//authentication
+
+app.post("/auth/signup",signup);
+app.post("/auth/signin",signin);
+
+
 
 
 app.listen(port,()=>{

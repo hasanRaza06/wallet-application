@@ -35,7 +35,7 @@ export const signup=async(req , res)=>{
 
         const token =generateToken(newUser);
 
-        return res.status(201).json({success:true,message:"User created successfully",token,newUser});
+        return res.status(201).json({success:true,message:"SignUp Completed",token,newUser});
     } catch (error) {
         return res.status(500).json({success:false,message:"Internal server error"});
     }
@@ -56,7 +56,7 @@ export const signin=async(req , res)=>{
             return res.status(400).json({success:false,message:"Incorrect Password"});
         }
         const token =generateToken(user);
-        return res.status(200).json({success:true,message:"User signed in successfully",token,user});
+        return res.status(200).json({success:true,message:"LogIn Completed",token,user});
     } catch (error) {
         return res.status(500).json({success:false,message:"Internal server error"});
     }
