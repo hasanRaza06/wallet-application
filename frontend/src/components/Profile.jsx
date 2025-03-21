@@ -1,15 +1,23 @@
 import React from "react";
 
 const Profile = () => {
-  // Retrieve user data from localStorage
-  const user = localStorage.getItem("user")|| {};
+  // Retrieve and parse user data from localStorage
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : {};
 
   return (
-    <div className="p-4 border rounded-lg shadow-md w-80 mx-auto mt-10">
-      <h2 className="text-xl font-semibold mb-4">Profile Details</h2>
-      <p><strong>Name:</strong> {user.name || "N/A"}</p>
-      <p><strong>Email:</strong> {user.email || "N/A"}</p>
-      <p><strong>Wallet:</strong> ${user.wallet || "0.00"}</p>
+    <div className="max-w-lg mx-auto mt-10 p-6 bg-gray-100 dark:bg-gray-900 rounded-lg">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b pb-2 mb-4">
+        Profile Details
+      </h2>
+      <div className="text-lg space-y-3 text-gray-700 dark:text-gray-300">
+        <p>
+          <span className="font-semibold">Name:</span> {user.name || "N/A"}
+        </p>
+        <p>
+          <span className="font-semibold">Email:</span> {user.email || "N/A"}
+        </p>
+      </div>
     </div>
   );
 };

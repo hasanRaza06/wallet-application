@@ -3,6 +3,9 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import { connectDB } from './db.js';
 import { signup, signin } from './controller/auth.js';
+import { getAllUsers } from './controller/user.js';
+import { userMiddleWare } from './middleware.js';
+import { addAccount, getUserAccounts } from './controller/account.js';
 
 dotenv.config();
 
@@ -25,6 +28,17 @@ app.get("/",(req,res)=>{
 
 app.post("/auth/signup",signup);
 app.post("/auth/signin",signin);
+
+
+// users
+
+app.get("/all_users",userMiddleWare,getAllUsers);
+
+
+//account
+
+app.post("/user/add_account",userMiddleWare,addAccount);
+app.get("/account_details",userMiddleWare,getUserAccounts);
 
 
 

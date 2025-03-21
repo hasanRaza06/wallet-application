@@ -14,6 +14,10 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    phoneNumber:{
+        type:String,
+        required:true
+    },
     account:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Account"

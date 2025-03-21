@@ -18,10 +18,10 @@ import { RiCloseLargeFill } from "react-icons/ri";
 import { User, Users, History, Landmark, Wallet } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import Profile from "./Profile";
+import UsersPage from "./User";
+import UserBank from "./UserBank";
 
 // Dummy page components
-const UsersPage = () => <div className="p-4">Users Page</div>;
-const AddBank = () => <div className="p-4">Add Bank Page</div>;
 const HistoryPage = () => <div className="p-4">History Page</div>;
 const WalletPage = () => <div className="p-4">Wallet Page</div>;
 
@@ -38,7 +38,7 @@ export default function NavBar() {
   const menuItems = [
     { name: "Profile", icon: <User size={18} />, component: <Profile /> },
     { name: "Users", icon: <Users size={18} />, component: <UsersPage /> },
-    { name: "Bank", icon: <Landmark size={18} />, component: <AddBank /> },
+    { name: "Bank", icon: <Landmark size={18} />, component: <UserBank /> },
     { name: "Wallet", icon: <Wallet size={18} />, component: <WalletPage /> },
     { name: "History", icon: <History size={18} />, component: <HistoryPage /> },
   ];

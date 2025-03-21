@@ -20,6 +20,7 @@ const SignUp = () => {
     password: "",
     confirmPassword: "",
     name: "",
+    phoneNumber:null
   });
 
   // Handle Input Change
@@ -54,7 +55,10 @@ const SignUp = () => {
       if(response.data.success){
         toast.success("Signup Success!", { position: "top-right" });
         localStorage.setItem('token',response.data.token);
-        localStorage.setItem('user',response.data.user);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ ...response.data.newUser, password: "" })
+        );
         navigate('/');
       }
     } catch (error) {
@@ -140,6 +144,18 @@ const SignUp = () => {
                 </InputAdornment>
               ),
             }}
+          />
+
+         <TextField
+            sx={{ marginTop: 2 }}
+            name="phoneNumber"
+            label="Phone Number"
+            type="number"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            variant="outlined"
+            fullWidth
+            required
           />
 
           {/* Login Link */}

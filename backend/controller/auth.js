@@ -5,21 +5,22 @@ import { Wallet } from '../models/model.wallet.js';
 
 export const signup=async(req , res)=>{
     try {
-        const {name,email,password}=req.body;
+        const {name,email,password,phoneNumber}=req.body;
 
-        if(!name || !email || !password){
+        if(!name || !email || !password || !phoneNumber){
             return res.status(400).json({success:false,message:"Please fill in all fields"});
         }
 
-        const user=await User.findOne({email});
+        const user=await User.findOne({$or: [{ email }, { phoneNumber }]});
         if(user){
-            return res.status(400).json({success:false,message:"Email already exists"});
+            return res.status(400).json({success:false,message:"Email or Phone Number already exists"});
         }
         const hashedPassword=await bcrypt.hash(password,10);
         const newUser=new User({
             name,
             email,
-            password:hashedPassword
+            password:hashedPassword,
+            phoneNumber
         })
         
         let wallet;
