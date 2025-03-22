@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
+dotenv.config(); // ✅ Load environment variables early
 
 const app = express();
 
@@ -34,16 +34,21 @@ app.get('/all_users', userMiddleWare, getAllUsers);
 app.post('/user/add_account', userMiddleWare, addAccount);
 app.get('/account_details', userMiddleWare, getUserAccounts);
 
-// ✅ Serve Frontend **after** API routes
-const frontendPath = path.resolve(__dirname, '../frontend/build');
+// ✅ Serve Frontend (Vite uses "dist" instead of "build")
+const frontendPath = path.resolve(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(frontendPath, 'index.html'));
+  const indexPath = path.join(frontendPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(500).send('Frontend build not found. Run "npm run build" in frontend.');
+    }
+  });
 });
 
 // Start Server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`🚀 Server is running on port ${port}`);
 });
