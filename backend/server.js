@@ -17,12 +17,26 @@ dotenv.config(); // ✅ Load environment variables early
 
 const app = express();
 
-app.use(cors({ 
-  origin: "*",  
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
+const allowedOrigins = [
+  "https://wallet-application-iz8f.onrender.com",
+  "http://localhost:5173"
+];
+
+app.use(
+  cors({
+      origin: function (origin, callback) {
+          if (!origin || allowedOrigins.includes(origin)) {
+              callback(null, origin); // Allow if origin is in the list
+          } else {
+              callback(new Error("Not allowed by CORS"));
+          }
+      },
+      credentials: true,
+      allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
+app.options("*", cors());
 
 
 app.use(express.json());
