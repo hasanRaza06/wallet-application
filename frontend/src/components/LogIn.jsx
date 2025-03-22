@@ -9,7 +9,6 @@ import { toast } from "react-hot-toast";
 
 const LogIn = () => {
 
-
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -31,7 +30,6 @@ const LogIn = () => {
         return;
     }
     try {
-        console.log(BACKEND_URL);
         const response = await axios.post(`https://wallet-application-ostq.onrender.com/auth/signin`, formData);
          if(response.data.success){
                 toast.success("Signup Success!", { position: "top-right" });
