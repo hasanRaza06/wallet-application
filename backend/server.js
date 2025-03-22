@@ -6,6 +6,12 @@ import { signup, signin } from './controller/auth.js';
 import { getAllUsers } from './controller/user.js';
 import { userMiddleWare } from './middleware.js';
 import { addAccount, getUserAccounts } from './controller/account.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Required for ES module environments
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
