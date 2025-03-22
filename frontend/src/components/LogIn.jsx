@@ -8,6 +8,9 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const LogIn = () => {
+ 
+  const BACKEND_URL=import.meta.env.BACKEND_URL;
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -29,7 +32,7 @@ const LogIn = () => {
         return;
     }
     try {
-        const response = await axios.post("http://localhost:3000/auth/signin", formData);
+        const response = await axios.post(`${BACKEND_URL}/auth/signin`, formData);
          if(response.data.success){
                 toast.success("Signup Success!", { position: "top-right" });
                 localStorage.setItem('token',response.data.token);
