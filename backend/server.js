@@ -19,7 +19,7 @@ const app = express();
 
 const allowedOrigins = [
   "https://wallet-application-iz8f.onrender.com",
-  "http://localhost:5173"
+  "http://localhost:5174"
 ];
 
 app.use(

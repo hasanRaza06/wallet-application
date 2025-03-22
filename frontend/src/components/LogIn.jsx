@@ -30,7 +30,7 @@ const LogIn = () => {
         return;
     }
     try {
-        const response = await axios.post(`https://wallet-application-ostq.onrender.com/auth/signin`, formData, {
+        const response = await axios.post(`http://localhost:3000/auth/signin`, formData, {
           headers: { "Content-Type": "application/json" }
         });
          if(response.data.success){
@@ -44,6 +44,7 @@ const LogIn = () => {
               }
     } catch (error) {
         toast.error(error.response?.data?.message || "Login Failed");
+        setLoading(false);
     }
 };
 
