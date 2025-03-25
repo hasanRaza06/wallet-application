@@ -27,9 +27,17 @@ const PaymentForm = () => {
             { txnid: location.state.txnid }
           );
           
-          if (!response.data.success) {
+          if (response.data.success) {
+            navigate('/payment/success', {
+              state: {
+                txnid: response.data.txnid,
+                amount: response.data.amount,
+                status: 'success'
+              }
+            });
+          } else {
             navigate('/payment/failure', {
-              state: { error: 'Payment verification failed' }
+              state: { error: response.data.error || 'Payment verification failed' }
             });
           }
         } catch (error) {
@@ -84,50 +92,6 @@ const PaymentForm = () => {
     } catch (error) {
       console.error("Payment Error:", error.response?.data?.message || error.message);
       alert(error.response?.data?.message || "Payment failed. Please try again.");
-      setLoading(false);
-    }
-  };
-
-  // Function to check pending payments (call this from your Home page)
-  const checkPendingPayment = async () => {
-    const pendingPayment = JSON.parse(localStorage.getItem('pendingPayment'));
-    if (!pendingPayment) return;
-
-    // Clear the pending payment immediately to prevent repeated checks
-    localStorage.removeItem('pendingPayment');
-
-    // Only consider payments initiated in the last 30 minutes
-    if (Date.now() - pendingPayment.timestamp > 30 * 60 * 1000) return;
-
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        "https://wallet-application-iglo.onrender.com/api/payment/verify",
-        { txnid: pendingPayment.txnid }
-      );
-
-      if (response.data.success) {
-        navigate('/payment/success', {
-          state: {
-            txnid: response.data.txnid,
-            amount: response.data.amount,
-            status: 'success'
-          }
-        });
-      } else {
-        navigate('/payment/failure', {
-          state: {
-            error: response.data.error || 'Payment verification failed'
-          }
-        });
-      }
-    } catch (error) {
-      navigate('/payment/failure', {
-        state: {
-          error: 'Error verifying payment'
-        }
-      });
-    } finally {
       setLoading(false);
     }
   };

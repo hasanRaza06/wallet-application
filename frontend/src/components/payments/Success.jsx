@@ -1,16 +1,32 @@
-import { CheckCircle } from "@mui/icons-material";
-import { Container, Typography, Box, Button } from "@mui/material";
-import { Link } from "react-router-dom";
+// SuccessPage.jsx
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const Success = () => (
-  <Container maxWidth="sm" className="mt-10">
-    <Box className="bg-green-100 p-6 rounded-xl text-center shadow-md">
-      <CheckCircle className="text-green-600 text-5xl" />
-      <Typography variant="h5" className="mt-2 font-bold">Payment Successful!</Typography>
-      <Typography className="mt-2">Thank you for your purchase.</Typography>
-      <Button variant="contained" color="primary" className="mt-4" component={Link} to="/">Go Home</Button>
-    </Box>
-  </Container>
-);
+const Success = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.state?.txnid) {
+      navigate('/');
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      navigate('/');
+    }, 5000); // Redirect to home after 5 seconds
+
+    return () => clearTimeout(timer);
+  }, [navigate, location.state]);
+
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-3xl font-bold text-green-600 mb-4">Payment Successful!</h1>
+      <p className="text-lg mb-2">Transaction ID: {location.state?.txnid}</p>
+      <p className="text-lg mb-6">Amount: ₹{location.state?.amount}</p>
+      <p className="text-gray-600">You will be redirected to home page shortly...</p>
+    </div>
+  );
+};
 
 export default Success;
