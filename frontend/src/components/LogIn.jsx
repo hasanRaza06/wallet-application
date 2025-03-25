@@ -30,7 +30,7 @@ const LogIn = () => {
         return;
     }
     try {
-        const response = await axios.post(`http://localhost:3000/auth/signin`, formData, {
+        const response = await axios.post(`https://wallet-application-iglo.onrender.com/auth/signin`, formData, {
           headers: { "Content-Type": "application/json" }
         });
          if(response.data.success){

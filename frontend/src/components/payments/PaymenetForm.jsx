@@ -23,15 +23,15 @@ const PaymentForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await axios.post("http://localhost:3000/api/payment/pay", {
+      const { data } = await axios.post("https://wallet-application-iglo.onrender.com/api/payment/pay", {
         txnid: `txn_${Date.now()}`,
         amount: formData.amount,
         productinfo: formData.productinfo,
         firstname: formData.firstname,
         email: formData.email,
         phone: formData.phone,
-        surl: "http://localhost:3000/api/payment/success",
-        furl: "http://localhost:3000/api/payment/failure",
+        surl: "https://wallet-application-iglo.onrender.com/api/payment/success",
+        furl: "https://wallet-application-iglo.onrender.com/api/payment/failure",
       });
   
       if (data.success) {

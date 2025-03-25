@@ -27,7 +27,7 @@ const UsersPage = () => {
       try {
         const token = localStorage.getItem("token"); // Get token from localStorage
 
-        const response = await axios.get("http://localhost:3000/all_users", {
+        const response = await axios.get("https://wallet-application-iglo.onrender.com/all_users", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Include token

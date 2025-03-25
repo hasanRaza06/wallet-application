@@ -40,8 +40,8 @@ export const makePayment = async (req, res) => {
       firstname,
       email,
       phone,
-      surl: "http://localhost:3000/api/payment/success",
-      furl: "http://localhost:3000/api/payment/failure",
+      surl: "https://wallet-application-iglo.onrender.com/api/payment/success",
+      furl: "https://wallet-application-iglo.onrender.com/api/payment/failure",
       hash,
     };
 

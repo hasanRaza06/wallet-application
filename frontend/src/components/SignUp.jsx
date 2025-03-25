@@ -50,7 +50,7 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:3000/auth/signup", formData);
+      const response = await axios.post("https://wallet-application-iglo.onrender.com/auth/signup", formData);
       //console.log("Signup Success:", response.data);
       if(response.data.success){
         toast.success("Signup Success!", { position: "top-right" });

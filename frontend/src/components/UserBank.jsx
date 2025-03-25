@@ -23,7 +23,7 @@ const UserBank = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get("http://localhost:3000/account_details", {
+      const response = await axios.get("https://wallet-application-iglo.onrender.com/account_details", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
