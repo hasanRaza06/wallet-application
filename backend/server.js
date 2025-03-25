@@ -7,7 +7,10 @@ import { getAllUsers } from './controller/user.js';
 import { userMiddleWare } from './middleware.js';
 import { addAccount, getUserAccounts } from './controller/account.js';
 import path from 'path';
+import paymentRoutes from "./payUIntegeration.js";
 import { fileURLToPath } from 'url';
+import bodyParser from "body-parser";
+
 
 // Required for ES module environments
 const __filename = fileURLToPath(import.meta.url);
@@ -40,6 +43,7 @@ app.options("*", cors());
 
 
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true })); 
 
 // Connect Database
 connectDB();
@@ -54,6 +58,10 @@ app.get('/all_users', userMiddleWare, getAllUsers);
 // Account Routes
 app.post('/user/add_account', userMiddleWare, addAccount);
 app.get('/account_details', userMiddleWare, getUserAccounts);
+
+
+// Payment Routes
+app.use("/api/payment",paymentRoutes);
 
 // ✅ Serve Frontend (Vite uses "dist" instead of "build")
 const frontendPath = path.resolve(__dirname, '../frontend/dist');
