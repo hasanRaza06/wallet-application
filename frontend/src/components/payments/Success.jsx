@@ -1,43 +1,38 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Container, Typography, Box, Button } from "@mui/material";
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Container, Typography, Box, Button } from '@mui/material';
 
 const Success = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Get parameters from both state and URL query
-  const txnid = location.state?.txnid || new URLSearchParams(window.location.search).get('txnid');
-  const amount = location.state?.amount || new URLSearchParams(window.location.search).get('amount');
+  const searchParams = new URLSearchParams(location.search);
+
+  // Get transaction details from URL or state
+  const txnid = searchParams.get('txnid') || location.state?.txnid;
+  const amount = searchParams.get('amount') || location.state?.amount;
 
   useEffect(() => {
     if (!txnid) {
-      navigate("/");
-      return;
+      navigate('/');
     }
-    
-    // Clear the pending transaction
-    sessionStorage.removeItem('pendingTxnId');
-    
-    // Optional: Verify payment with backend
-    // verifyPayment(txnid);
+    // Clear the pending payment from storage
+    sessionStorage.removeItem('pendingPayment');
   }, [txnid, navigate]);
 
   return (
-    <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-      <Box sx={{ textAlign: "center", padding: 4, borderRadius: 2, boxShadow: 3 }}>
-        <Typography variant="h4" color="success.main" fontWeight="bold">
+    <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box sx={{ textAlign: 'center', p: 4, boxShadow: 3, borderRadius: 2 }}>
+        <Typography variant="h4" color="success.main" gutterBottom>
           Payment Successful!
         </Typography>
-        {txnid && <Typography variant="h6" mt={2}>Transaction ID: {txnid}</Typography>}
-        {amount && <Typography variant="h6" mt={1}>Amount: ₹{amount}</Typography>}
+        <Typography variant="h6">Transaction ID: {txnid}</Typography>
+        <Typography variant="h6" sx={{ mt: 1 }}>Amount: ₹{amount}</Typography>
         <Button 
           variant="contained" 
-          color="primary" 
           sx={{ mt: 3 }}
-          onClick={() => navigate("/")}
+          onClick={() => navigate('/')}
         >
-          Return to Home
+          Return Home
         </Button>
       </Box>
     </Container>

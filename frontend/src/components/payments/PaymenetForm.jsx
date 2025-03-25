@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { Payment } from "@mui/icons-material";
@@ -24,37 +24,38 @@ const PaymentForm = () => {
     setLoading(true);
     
     try {
-      // 1. Initiate payment with backend
       const { data } = await axios.post(
         "https://wallet-application-iglo.onrender.com/api/payment/pay",
         formData
       );
 
       if (data.success) {
-        // 2. Store transaction ID temporarily
-        sessionStorage.setItem('pendingTxnId', data.paymentData.txnid);
+        // Store transaction ID for verification
+        sessionStorage.setItem('pendingPayment', JSON.stringify({
+          txnid: data.paymentData.txnid,
+          timestamp: Date.now()
+        }));
         
-        // 3. Create and submit form to PayU
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = data.payu_url;
+        // Programmatically submit the form to PayU
+        const payuForm = document.createElement('form');
+        payuForm.method = 'post';
+        payuForm.action = data.payu_url;
+        payuForm.style.display = 'none';
 
-        // Add all payment data as hidden inputs
         Object.entries(data.paymentData).forEach(([key, value]) => {
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = key;
           input.value = value;
-          form.appendChild(input);
+          payuForm.appendChild(input);
         });
 
-        document.body.appendChild(form);
-        form.submit();
+        document.body.appendChild(payuForm);
+        payuForm.submit();
       }
     } catch (error) {
-      console.error("Payment error:", error);
       navigate('/payment/failure', {
-        state: { error: error.response?.data?.message || "Payment initiation failed" }
+        state: { error: error.response?.data?.message || "Payment failed" }
       });
     } finally {
       setLoading(false);

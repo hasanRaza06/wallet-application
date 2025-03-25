@@ -7,7 +7,6 @@ dotenv.config();
 const PAYU_MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY;
 const PAYU_MERCHANT_SALT = process.env.PAYU_MERCHANT_SALT;
 const PAYU_URL = process.env.PAYU_URL;
-const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || "https://yourfrontend.com";
 
 // Generate PayU Hash
 const generateHash = (params) => {
@@ -42,8 +41,8 @@ export const makePayment = async (req, res) => {
       firstname,
       email,
       phone,
-      surl: `https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app/payment/success`,
-      furl: `https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app/payment/failure`,
+      surl: `https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app//payment/callback`,
+      furl: `https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app//payment/callback`,
       hash,
       service_provider: "payu_paisa",
     };
@@ -99,42 +98,38 @@ export const paymentWebhook = async (req, res) => {
   }
 };
 
+// In your backend controller
 export const verifyPayment = async (req, res) => {
   try {
     const { txnid } = req.body;
     
-    // In a real implementation, you would:
-    // 1. Check your database first
-    // const payment = await PaymentModel.findOne({ txnid });
+    // 1. First check your database
+    // const payment = await Payment.findOne({ txnid });
     
-    // 2. If not found in DB or still pending, check with PayU
-    const payuResponse = await axios.post('https://test.payu.in/merchant/postservice?form=2', {
-      key: PAYU_MERCHANT_KEY,
-      command: "verify_payment",
+    // 2. If not found, verify with PayU API
+    const verificationResponse = await axios.post('https://info.payu.in/merchant/postservice', {
+      key: process.env.PAYU_MERCHANT_KEY,
+      command: 'verify_payment',
       var1: txnid,
-      hash: generateHash({ txnid })
-    }, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      hash: generateVerificationHash(txnid) // Implement this function
     });
 
-    // Process PayU's response
-    if (payuResponse.data.status === 'success') {
+    if (verificationResponse.data.status === 'success') {
       return res.json({
         success: true,
-        txnid,
-        amount: payuResponse.data.amount
+        txnid: verificationResponse.data.txnid,
+        amount: verificationResponse.data.amount
       });
     }
 
-    return res.json({
+    return res.json({ 
       success: false,
-      error: 'Payment verification failed'
+      error: verificationResponse.data.message || 'Payment verification failed'
     });
   } catch (error) {
-    console.error("Verification Error:", error);
     res.status(500).json({
       success: false,
-      error: 'Verification failed'
+      error: 'Verification error'
     });
   }
 };
