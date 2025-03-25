@@ -16,49 +16,45 @@ const PaymentForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Verify payment only if txnid exists in location.state
   useEffect(() => {
-    if (!location.state?.txnid) return;
+    if (location.state?.txnid) {
+      verifyPayment(location.state.txnid);
+    }
+  }, [location.state]);
 
-    const verifyPayment = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.post(
-          "https://wallet-application-iglo.onrender.com/api/payment/verify",
-          { txnid: location.state.txnid }
-        );
+  const verifyPayment = async (txnid) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "https://wallet-application-iglo.onrender.com/api/payment/verify",
+        { txnid }
+      );
 
-        if (response.data.success) {
-          navigate("/payment/success", {
-            state: {
-              txnid: response.data.txnid,
-              amount: response.data.amount,
-              status: "success",
-            },
-          });
-        } else {
-          navigate("/payment/failure", {
-            state: { error: response.data.error || "Payment verification failed" },
-          });
-        }
-      } catch (error) {
-        navigate("/payment/failure", {
-          state: { error: "Verification error" },
+      if (response.data.success) {
+        navigate("/payment/success", {
+          state: {
+            txnid: response.data.txnid,
+            amount: response.data.amount,
+            status: "success",
+          },
         });
-      } finally {
-        setLoading(false);
+      } else {
+        navigate("/payment/failure", {
+          state: { error: response.data.error || "Payment verification failed" },
+        });
       }
-    };
-
-    verifyPayment();
-  }, [location.state, navigate]);
-
-  // Handle form input changes
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      navigate("/payment/failure", { state: { error: "Verification error" } });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Handle payment submission
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -69,13 +65,14 @@ const PaymentForm = () => {
       );
 
       if (data.success) {
-        // Redirect with txnid in location.state instead of URL
-        navigate("/payment", {
-          state: { txnid: data.paymentData.txnid },
-        });
+        localStorage.setItem(
+          "pendingPayment",
+          JSON.stringify({ txnid: data.paymentData.txnid, timestamp: Date.now() })
+        );
+        await verifyPayment(data.paymentData.txnid);
       }
     } catch (error) {
-      console.error("Payment Error:", error.response?.data?.message || error.message);
+      console.error("Payment error:", error);
       alert(error.response?.data?.message || "Payment failed. Please try again.");
     } finally {
       setLoading(false);
@@ -83,71 +80,26 @@ const PaymentForm = () => {
   };
 
   return (
-    <Container maxWidth="sm" className="mt-10">
-      <Box className="bg-white p-6 rounded-xl shadow-md">
-        <Typography
-          variant="h5"
-          className="text-center mb-4 font-bold flex items-center justify-center"
-        >
-          <Payment className="mr-2" /> PayU Payment
+    <Container maxWidth="sm" sx={{ marginTop: 4 }}>
+      <Box sx={{ backgroundColor: "white", padding: 3, borderRadius: 2, boxShadow: 3 }}>
+        <Typography variant="h5" align="center" fontWeight="bold" mb={2}>
+          <Payment sx={{ verticalAlign: "middle", marginRight: 1 }} />
+          PayU Payment
         </Typography>
         <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="First Name"
-            name="firstname"
-            value={formData.firstname}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Phone"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Product Info"
-            name="productinfo"
-            value={formData.productinfo}
-            onChange={handleChange}
-            required
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            className="mt-4"
-            disabled={loading}
-          >
+          {["amount", "firstname", "email", "phone", "productinfo"].map((field) => (
+            <TextField
+              key={field}
+              fullWidth
+              margin="normal"
+              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              name={field}
+              value={formData[field]}
+              onChange={handleChange}
+              required
+            />
+          ))}
+          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }} disabled={loading}>
             {loading ? "Processing..." : "Pay Now"}
           </Button>
         </form>

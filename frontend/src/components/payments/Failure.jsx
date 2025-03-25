@@ -1,25 +1,31 @@
-// FailurePage.jsx
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Container, Typography, Box, CircularProgress } from "@mui/material";
 
 const Failure = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const errorMessage = location.state?.error || "An unknown error occurred";
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate('/');
-    }, 5000); // Redirect to home after 5 seconds
-
+    const timer = setTimeout(() => navigate("/"), 5000);
     return () => clearTimeout(timer);
   }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-3xl font-bold text-red-600 mb-4">Payment Failed!</h1>
-      <p className="text-lg mb-6">{location.state?.error || 'Unknown error occurred'}</p>
-      <p className="text-gray-600">You will be redirected to home page shortly...</p>
-    </div>
+    <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+      <Box sx={{ textAlign: "center", padding: 4, borderRadius: 2, boxShadow: 3 }}>
+        <Typography variant="h4" color="error.main" fontWeight="bold">
+          Payment Failed!
+        </Typography>
+        <Typography variant="h6" mt={2} color="text.secondary">
+          {errorMessage}
+        </Typography>
+        <Typography variant="body1" color="textSecondary" mt={3}>
+          You will be redirected to the home page shortly...
+        </Typography>
+      </Box>
+    </Container>
   );
 };
 

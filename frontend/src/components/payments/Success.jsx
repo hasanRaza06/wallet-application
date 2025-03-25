@@ -1,31 +1,45 @@
-// SuccessPage.jsx
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Container, Typography, Box, CircularProgress } from "@mui/material";
 
 const Success = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { txnid, amount } = location.state || {};
 
   useEffect(() => {
-    if (!location.state?.txnid) {
-      navigate('/');
+    if (!txnid) {
+      navigate("/");
       return;
     }
-
-    const timer = setTimeout(() => {
-      navigate('/');
-    }, 5000); // Redirect to home after 5 seconds
-
+    const timer = setTimeout(() => navigate("/"), 5000);
     return () => clearTimeout(timer);
-  }, [navigate, location.state]);
+  }, [txnid, navigate]);
+
+  if (!txnid) {
+    return (
+      <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+        <CircularProgress />
+        <Typography variant="h6" mt={2}>
+          Redirecting...
+        </Typography>
+      </Container>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-3xl font-bold text-green-600 mb-4">Payment Successful!</h1>
-      <p className="text-lg mb-2">Transaction ID: {location.state?.txnid}</p>
-      <p className="text-lg mb-6">Amount: ₹{location.state?.amount}</p>
-      <p className="text-gray-600">You will be redirected to home page shortly...</p>
-    </div>
+    <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+      <Box sx={{ textAlign: "center", padding: 4, borderRadius: 2, boxShadow: 3 }}>
+        <Typography variant="h4" color="success.main" fontWeight="bold">
+          Payment Successful!
+        </Typography>
+        <Typography variant="h6" mt={2}>Transaction ID: {txnid}</Typography>
+        <Typography variant="h6" mt={1}>Amount: ₹{amount}</Typography>
+        <Typography variant="body1" color="textSecondary" mt={3}>
+          You will be redirected to the home page shortly...
+        </Typography>
+      </Box>
+    </Container>
   );
 };
 
