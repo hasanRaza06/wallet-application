@@ -1,76 +1,53 @@
-import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Box, CircularProgress, Typography } from '@mui/material';
 
 const PaymentCallbackHandler = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  const verifyPayment = async (txnid) => {
-    try {
-      const { data } = await axios.post(
-        'https://wallet-application-iglo.onrender.com/api/payment/verify',
-        { txnid }
-      );
-      return data;
-    } catch (error) {
-      console.error('Verification error:', error);
-      return { success: false, error: 'Verification failed' };
-    }
-  };
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
 
   useEffect(() => {
-    const processPayment = async () => {
-      const txnid = searchParams.get('txnid');
-      const status = searchParams.get('status');
-      const error = searchParams.get('error');
+    const handleCallback = async () => {
+      try {
+        const txnid = searchParams.get('txnid');
+        const status = searchParams.get('status');
+        const hash = searchParams.get('hash');
 
-      if (!txnid) {
-        navigate('/payment/failure', {
-          state: { error: 'Transaction ID missing' }
-        });
-        return;
-      }
-
-      if (status === 'success') {
-        const verification = await verifyPayment(txnid);
-        if (verification.success) {
-          navigate('/payment/success', {
-            state: {
-              txnid: verification.txnid,
-              amount: verification.amount,
-              verified: true
-            }
-          });
-        } else {
-          navigate('/payment/failure', {
-            state: { error: verification.error || 'Payment not confirmed' }
-          });
+        if (!txnid || !status || !hash) {
+          navigate('/payment/failure');
+          return;
         }
-      } else {
-        navigate('/payment/failure', {
-          state: { error: error || 'Payment rejected by PayU' }
-        });
+
+        // Verify the payment with your backend
+        const response = await axios.post(
+          'https://wallet-application-iglo.onrender.com/api/payment/verify',
+          { txnid }
+        );
+
+        if (response.data.success) {
+          // Clear the pending payment from storage
+          sessionStorage.removeItem('pendingPayment');
+          navigate('/payment/success');
+        } else {
+          navigate('/payment/failure');
+        }
+      } catch (error) {
+        console.error('Payment verification error:', error);
+        navigate('/payment/failure');
       }
     };
 
-    processPayment();
+    handleCallback();
   }, [navigate, searchParams]);
 
   return (
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100vh'
-    }}>
-      <CircularProgress size={60} />
-      <Typography variant="h6" sx={{ mt: 3 }}>
-        Verifying payment...
-      </Typography>
-    </Box>
+    <div className="min-h-screen flex items-center justify-center bg-slate-100">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-gray-600">Verifying your payment...</p>
+      </div>
+    </div>
   );
 };
 
