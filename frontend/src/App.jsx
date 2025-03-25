@@ -19,8 +19,8 @@ const App = () => {
           <Route path="/login" element={<LogIn />} />
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/payment" element={<PaymentForm />} />
-          <Route path="/succedd" element={<Success />} />
-          <Route path="/failure" element={<Failure />} />
+          <Route path="/payment/success" element={<Success />} />
+          <Route path="/payment/failure" element={<Failure />} />
         </Routes>
       </BrowserRouter>
     </div>

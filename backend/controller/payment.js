@@ -58,20 +58,30 @@ export const makePayment = async (req, res) => {
 };
 
 
-// Success Handler
-export const paymentSuccess = (req, res) => {
-  res.json({
-    success: true,
-    message: "Payment Successful!",
-    data: req.body,
-  });
-};
-
-// Failure Handler
-export const paymentFailure = (req, res) => {
-  res.json({
-    success: false,
-    message: "Payment Failed!",
-    data: req.body,
-  });
+export const verifyPayment = async (req, res) => {
+  try {
+    const { txnid } = req.body;
+    
+    // Verify with PayU API or check your database
+    // This is a simplified example
+    const payment = await PaymentModel.findOne({ txnid });
+    
+    if (payment && payment.status === 'success') {
+      return res.json({
+        success: true,
+        txnid: payment.txnid,
+        amount: payment.amount
+      });
+    }
+    
+    return res.json({
+      success: false,
+      error: 'Payment not found or failed'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Verification failed'
+    });
+  }
 };
