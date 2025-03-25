@@ -27,7 +27,7 @@ const PaymentCallbackHandler = () => {
 
         if (response.data.success) {
           // Clear the pending payment from storage
-          sessionStorage.removeItem('pendingPayment');
+          localStorage.removeItem('pendingPayment');
           navigate('/payment/success');
         } else {
           navigate('/payment/failure');

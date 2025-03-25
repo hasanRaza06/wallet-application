@@ -7,6 +7,7 @@ dotenv.config();
 const PAYU_MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY;
 const PAYU_MERCHANT_SALT = process.env.PAYU_MERCHANT_SALT;
 const PAYU_URL = process.env.PAYU_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app";
 
 // Generate PayU Hash
 const generateHash = (params) => {
@@ -47,8 +48,8 @@ export const makePayment = async (req, res) => {
       firstname,
       email,
       phone,
-      surl: `${process.env.FRONTEND_URL}/payment/callback`,
-      furl: `${process.env.FRONTEND_URL}/payment/callback`,
+      surl: `${FRONTEND_URL}/payment/callback`,
+      furl: `${FRONTEND_URL}/payment/callback`,
       hash,
       service_provider: "payu_paisa",
     };

@@ -18,7 +18,6 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    // Check for pending payment when home page loads
     const pendingPayment = JSON.parse(localStorage.getItem('pendingPayment'));
     if (pendingPayment) {
       navigate('/payment', { state: { txnid: pendingPayment.txnid } });
@@ -43,11 +42,13 @@ const Home = () => {
       );
 
       if (data.success) {
-        sessionStorage.setItem('pendingPayment', JSON.stringify({
+        // Store transaction ID for verification
+        localStorage.setItem('pendingPayment', JSON.stringify({
           txnid: data.paymentData.txnid,
           timestamp: Date.now()
         }));
         
+        // Create and submit the form to PayU
         const payuForm = document.createElement('form');
         payuForm.method = 'post';
         payuForm.action = data.payu_url;
@@ -65,6 +66,7 @@ const Home = () => {
         payuForm.submit();
       }
     } catch (error) {
+      console.error('Payment initiation error:', error);
       navigate('/payment/failure', {
         state: { error: error.response?.data?.message || "Payment failed" }
       });

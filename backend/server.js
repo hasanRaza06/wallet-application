@@ -11,7 +11,6 @@ import paymentRoutes from "./payUIntegeration.js";
 import { fileURLToPath } from 'url';
 import bodyParser from "body-parser";
 
-
 // Required for ES module environments
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,31 +19,27 @@ dotenv.config(); // ✅ Load environment variables early
 
 const app = express();
 
-const allowedOrigins = [
-  "https://wallet-application-iz8f.onrender.com",
-  "https://wallet-application-iglo.onrender.com",
-  "https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app",
-  "http://localhost:5174"
-];
+// CORS configuration
+const corsOptions = {
+  origin: [
+    "https://wallet-application-iz8f.onrender.com",
+    "https://wallet-application-iglo.onrender.com",
+    "https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    "http://localhost:5173"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  maxAge: 86400 // 24 hours
+};
 
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true); // ✅ Allow the request
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-  })
-)
-
-app.options("*", cors());
-
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
@@ -63,9 +58,8 @@ app.get('/all_users', userMiddleWare, getAllUsers);
 app.post('/user/add_account', userMiddleWare, addAccount);
 app.get('/account_details', userMiddleWare, getUserAccounts);
 
-
 // Payment Routes
-app.use("/api/payment",paymentRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // ✅ Serve Frontend (Vite uses "dist" instead of "build")
 const frontendPath = path.resolve(__dirname, '../frontend/dist');
