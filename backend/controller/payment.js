@@ -23,14 +23,18 @@ export const makePayment = async (req, res) => {
     }
 
     const txnid = "txn_" + Date.now(); // Unique transaction ID
-    const hash = generateHash({
-      key: PAYU_MERCHANT_KEY,
-      txnid,
-      amount,
-      productinfo,
-      firstname,
-      email,
-    });
+    const hash = generateHash(
+      {
+        key: PAYU_MERCHANT_KEY,
+        txnid,
+        amount,
+        productinfo,
+        firstname,
+        email,
+      },
+      PAYU_MERCHANT_SALT
+    );
+    
 
     const paymentData = {
       key: PAYU_MERCHANT_KEY,
