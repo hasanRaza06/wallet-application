@@ -1,21 +1,20 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Container, Typography, Box, CircularProgress } from "@mui/material";
+import { Container, Typography, Box, Button } from "@mui/material";
 
 const Failure = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const errorMessage = location.state?.error || "";
+  
+  // Get error from state or URL query
+  const error = location.state?.error || 
+                new URLSearchParams(window.location.search).get('error') || 
+                "Payment failed";
 
   useEffect(() => {
-    if (!errorMessage) {
-      navigate("/"); // Redirect immediately if no error exists
-      return;
-    }
-
-    const timer = setTimeout(() => navigate("/"), 5000);
-    return () => clearTimeout(timer);
-  }, [errorMessage, navigate]);
+    // Clear the pending transaction
+    sessionStorage.removeItem('pendingTxnId');
+  }, []);
 
   return (
     <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
@@ -24,11 +23,16 @@ const Failure = () => {
           Payment Failed!
         </Typography>
         <Typography variant="h6" mt={2} color="text.secondary">
-          {errorMessage || "Something went wrong."}
+          {error}
         </Typography>
-        <Typography variant="body1" color="textSecondary" mt={3}>
-          You will be redirected to the home page shortly...
-        </Typography>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          sx={{ mt: 3 }}
+          onClick={() => navigate("/payment")} // Or your payment page
+        >
+          Try Again
+        </Button>
       </Box>
     </Container>
   );

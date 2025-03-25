@@ -23,6 +23,7 @@ const app = express();
 const allowedOrigins = [
   "https://wallet-application-iz8f.onrender.com",
   "https://wallet-application-iglo.onrender.com",
+  "https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app",
   "http://localhost:5174"
 ];
 

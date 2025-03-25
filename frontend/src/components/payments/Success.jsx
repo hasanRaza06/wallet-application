@@ -1,19 +1,26 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Container, Typography, Box, CircularProgress } from "@mui/material";
+import { Container, Typography, Box, Button } from "@mui/material";
 
 const Success = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { txnid, amount } = location.state || {};
+  
+  // Get parameters from both state and URL query
+  const txnid = location.state?.txnid || new URLSearchParams(window.location.search).get('txnid');
+  const amount = location.state?.amount || new URLSearchParams(window.location.search).get('amount');
 
   useEffect(() => {
     if (!txnid) {
       navigate("/");
       return;
     }
-    const timer = setTimeout(() => navigate("/"), 5000);
-    return () => clearTimeout(timer);
+    
+    // Clear the pending transaction
+    sessionStorage.removeItem('pendingTxnId');
+    
+    // Optional: Verify payment with backend
+    // verifyPayment(txnid);
   }, [txnid, navigate]);
 
   return (
@@ -22,11 +29,16 @@ const Success = () => {
         <Typography variant="h4" color="success.main" fontWeight="bold">
           Payment Successful!
         </Typography>
-        <Typography variant="h6" mt={2}>Transaction ID: {txnid}</Typography>
-        <Typography variant="h6" mt={1}>Amount: ₹{amount}</Typography>
-        <Typography variant="body1" color="textSecondary" mt={3}>
-          You will be redirected to the home page shortly...
-        </Typography>
+        {txnid && <Typography variant="h6" mt={2}>Transaction ID: {txnid}</Typography>}
+        {amount && <Typography variant="h6" mt={1}>Amount: ₹{amount}</Typography>}
+        <Button 
+          variant="contained" 
+          color="primary" 
+          sx={{ mt: 3 }}
+          onClick={() => navigate("/")}
+        >
+          Return to Home
+        </Button>
       </Box>
     </Container>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { Payment } from "@mui/icons-material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const PaymentForm = () => {
   const [formData, setFormData] = useState({
@@ -14,43 +14,6 @@ const PaymentForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (!location.state?.txnid) {
-      return; // Do nothing if txnid is missing
-    }
-    verifyPayment(location.state.txnid);
-  }, [location.state]);
-
-  const verifyPayment = async (txnid) => {
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        "https://wallet-application-iglo.onrender.com/api/payment/verify",
-        { txnid }
-      );
-
-      if (response.data.success) {
-        navigate("/payment/success", {
-          state: {
-            txnid: response.data.txnid,
-            amount: response.data.amount,
-            status: "success",
-          },
-        });
-      } else {
-        navigate("/payment/failure", {
-          state: { error: response.data.error || "Payment verification failed" },
-        });
-      }
-    } catch (error) {
-      console.error("Payment verification error:", error);
-      navigate("/payment/failure", { state: { error: "Verification error" } });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -59,21 +22,40 @@ const PaymentForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     try {
+      // 1. Initiate payment with backend
       const { data } = await axios.post(
         "https://wallet-application-iglo.onrender.com/api/payment/pay",
         formData
       );
 
       if (data.success) {
-        // ✅ Redirect to PayU, do NOT verify immediately
-        navigate("/payment", {
-          state: { txnid: data.paymentData.txnid },
+        // 2. Store transaction ID temporarily
+        sessionStorage.setItem('pendingTxnId', data.paymentData.txnid);
+        
+        // 3. Create and submit form to PayU
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = data.payu_url;
+
+        // Add all payment data as hidden inputs
+        Object.entries(data.paymentData).forEach(([key, value]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
         });
+
+        document.body.appendChild(form);
+        form.submit();
       }
     } catch (error) {
       console.error("Payment error:", error);
-      alert(error.response?.data?.message || "Payment failed. Please try again.");
+      navigate('/payment/failure', {
+        state: { error: error.response?.data?.message || "Payment initiation failed" }
+      });
     } finally {
       setLoading(false);
     }
@@ -97,9 +79,17 @@ const PaymentForm = () => {
               value={formData[field]}
               onChange={handleChange}
               required
+              type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
             />
           ))}
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }} disabled={loading}>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            sx={{ mt: 2 }} 
+            disabled={loading}
+          >
             {loading ? "Processing..." : "Pay Now"}
           </Button>
         </form>
