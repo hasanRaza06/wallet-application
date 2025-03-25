@@ -23,6 +23,7 @@ const App = () => {
           <Route path="/payment/callback" element={<PaymentCallbackHandler />} />
           <Route path="/payment/success" element={<Success />} />
           <Route path="/payment/failure" element={<Failure />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </HashRouter>
     </div>
