@@ -22,6 +22,7 @@ const app = express();
 
 const allowedOrigins = [
   "https://wallet-application-iz8f.onrender.com",
+  "https://wallet-application-iglo.onrender.com",
   "http://localhost:5174"
 ];
 
