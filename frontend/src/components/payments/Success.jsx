@@ -16,17 +16,6 @@ const Success = () => {
     return () => clearTimeout(timer);
   }, [txnid, navigate]);
 
-  if (!txnid) {
-    return (
-      <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-        <CircularProgress />
-        <Typography variant="h6" mt={2}>
-          Redirecting...
-        </Typography>
-      </Container>
-    );
-  }
-
   return (
     <Container sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
       <Box sx={{ textAlign: "center", padding: 4, borderRadius: 2, boxShadow: 3 }}>

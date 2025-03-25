@@ -17,9 +17,10 @@ const PaymentForm = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.state?.txnid) {
-      verifyPayment(location.state.txnid);
+    if (!location.state?.txnid) {
+      return; // Do nothing if txnid is missing
     }
+    verifyPayment(location.state.txnid);
   }, [location.state]);
 
   const verifyPayment = async (txnid) => {
@@ -65,11 +66,10 @@ const PaymentForm = () => {
       );
 
       if (data.success) {
-        localStorage.setItem(
-          "pendingPayment",
-          JSON.stringify({ txnid: data.paymentData.txnid, timestamp: Date.now() })
-        );
-        await verifyPayment(data.paymentData.txnid);
+        // ✅ Redirect to PayU, do NOT verify immediately
+        navigate("/payment", {
+          state: { txnid: data.paymentData.txnid },
+        });
       }
     } catch (error) {
       console.error("Payment error:", error);
