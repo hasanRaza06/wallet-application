@@ -23,21 +23,17 @@ export const makePayment = async (req, res) => {
     }
 
     const txnid = "txn_" + Date.now(); // Unique transaction ID
-    const hash = generateHash(
-      {
-        key: PAYU_MERCHANT_KEY,
-        txnid,
-        amount,
-        productinfo,
-        firstname,
-        email,
-      },
-      PAYU_MERCHANT_SALT
-    );
-    
+    const hash = generateHash({
+      key: PAYU_MERCHANT_KEY,
+      txnid,
+      amount,
+      productinfo,
+      firstname,
+      email,
+    });
 
     const paymentData = {
-      key: PAYU_MERCHANT_KEY,
+      key: PAYU_MERCHANT_KEY,  // Make sure this is included
       txnid,
       amount,
       productinfo,
@@ -47,9 +43,14 @@ export const makePayment = async (req, res) => {
       surl: "https://wallet-application-iglo.onrender.com/api/payment/success",
       furl: "https://wallet-application-iglo.onrender.com/api/payment/failure",
       hash,
+      service_provider: "payu_paisa",  // Required for PayU
     };
 
-    res.json({ success: true, paymentData, payu_url: PAYU_URL });
+    res.json({ 
+      success: true, 
+      paymentData, 
+      payu_url: PAYU_URL 
+    });
   } catch (error) {
     console.error("Payment Error:", error);
     res.status(500).json({ success: false, message: error.message });

@@ -23,22 +23,33 @@ const PaymentForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await axios.post("https://wallet-application-iglo.onrender.com/api/payment/pay", {
-        txnid: `txn_${Date.now()}`,
-        amount: formData.amount,
-        productinfo: formData.productinfo,
-        firstname: formData.firstname,
-        email: formData.email,
-        phone: formData.phone,
-        surl: "https://wallet-application-iglo.onrender.com/api/payment/success",
-        furl: "https://wallet-application-iglo.onrender.com/api/payment/failure",
-      });
+      const { data } = await axios.post(
+        "https://wallet-application-iglo.onrender.com/api/payment/pay",
+        formData  // Send the form data directly
+      );
   
       if (data.success) {
-        window.location.href = `${data.payu_url}?${new URLSearchParams(data.paymentData).toString()}`;
+        // Create a form and submit it programmatically
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = data.payu_url;
+  
+        // Add all payment data as hidden inputs
+        Object.entries(data.paymentData).forEach(([key, value]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        });
+  
+        document.body.appendChild(form);
+        form.submit();
       }
     } catch (error) {
-      console.error("Payment Error:", error.response?.data?.error || error.message);
+      console.error("Payment Error:", error.response?.data?.message || error.message);
+      // Show error to user
+      alert(error.response?.data?.message || "Payment failed. Please try again.");
     }
     setLoading(false);
   };
