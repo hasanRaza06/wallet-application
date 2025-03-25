@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PaymentForm from "./components/payments/PaymenetForm";
 import Success from "./components/payments/Success";
 import Failure from "./components/payments/Failure";
+import PaymentCallbackHandler from "./components/payments/PaymentCallbackHandler";
 
 const App = () => {
   return (
