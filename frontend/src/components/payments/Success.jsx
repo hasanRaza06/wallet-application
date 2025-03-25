@@ -1,10 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { CheckCircle, Home } from '@mui/icons-material';
 
 const Success = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { txnid, amount, message } = location.state || {};
 
   return (
     <Box
@@ -38,8 +40,18 @@ const Success = () => {
           Payment Successful!
         </Typography>
         <Typography variant="body1" color="text.secondary" paragraph>
-          Your transaction has been completed successfully. Thank you for your payment.
+          {message || 'Your transaction has been completed successfully.'}
         </Typography>
+        {txnid && (
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Transaction ID: {txnid}
+          </Typography>
+        )}
+        {amount && (
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Amount: ₹{amount}
+          </Typography>
+        )}
         <Button
           variant="contained"
           color="primary"

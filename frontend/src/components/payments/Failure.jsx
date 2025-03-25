@@ -1,10 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import { Error, Refresh, Home } from '@mui/icons-material';
 
 const Failure = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { error } = location.state || {};
 
   return (
     <Box
@@ -38,7 +40,7 @@ const Failure = () => {
           Payment Failed
         </Typography>
         <Typography variant="body1" color="text.secondary" paragraph>
-          We're sorry, but your payment could not be processed. Please try again or contact support if the problem persists.
+          {error || 'We\'re sorry, but your payment could not be processed.'}
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
           <Button

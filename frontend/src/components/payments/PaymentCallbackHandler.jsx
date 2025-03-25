@@ -13,28 +13,56 @@ const PaymentCallbackHandler = () => {
         const txnid = searchParams.get('txnid');
         const status = searchParams.get('status');
         const hash = searchParams.get('hash');
+        const amount = searchParams.get('amount');
+        const error = searchParams.get('error_Message');
 
-        if (!txnid || !status || !hash) {
-          navigate('/payment/failure');
+        console.log('Payment Callback Data:', {
+          txnid,
+          status,
+          hash,
+          amount,
+          error
+        });
+
+        if (!txnid) {
+          navigate('/payment/failure', { 
+            state: { error: 'Transaction ID not found' }
+          });
           return;
         }
 
-        // Verify the payment with your backend
-        const response = await axios.post(
-          'https://wallet-application-iglo.onrender.com/api/payment/verify',
-          { txnid }
-        );
+        if (status === 'success') {
+          // Verify the payment with your backend
+          const response = await axios.post(
+            'https://wallet-application-iglo.onrender.com/api/payment/verify',
+            { txnid }
+          );
 
-        if (response.data.success) {
-          // Clear the pending payment from storage
-          localStorage.removeItem('pendingPayment');
-          navigate('/payment/success');
+          if (response.data.success) {
+            // Clear the pending payment from storage
+            localStorage.removeItem('pendingPayment');
+            navigate('/payment/success', {
+              state: {
+                txnid,
+                amount,
+                message: 'Payment successful!'
+              }
+            });
+          } else {
+            navigate('/payment/failure', {
+              state: { error: 'Payment verification failed' }
+            });
+          }
         } else {
-          navigate('/payment/failure');
+          navigate('/payment/failure', {
+            state: { error: error || 'Payment failed' }
+          });
         }
       } catch (error) {
         console.error('Payment verification error:', error);
-        navigate('/payment/failure');
+        navigate('/payment/failure', {
+          state: { error: 'Payment verification failed' }
+        });
       }
     };
 
