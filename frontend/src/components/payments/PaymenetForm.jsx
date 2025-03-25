@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { Payment } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const PaymentForm = () => {
   const [formData, setFormData] = useState({
@@ -14,16 +14,96 @@ const PaymentForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check for payment verification state on component mount
+  useEffect(() => {
+    const verifyFromState = async () => {
+      if (location.state?.txnid) {
+        setLoading(true);
+        try {
+          const response = await axios.post(
+            "https://wallet-application-iglo.onrender.com/api/payment/verify",
+            { txnid: location.state.txnid }
+          );
+          
+          if (!response.data.success) {
+            navigate('/payment/failure', {
+              state: { error: 'Payment verification failed' }
+            });
+          }
+        } catch (error) {
+          navigate('/payment/failure', {
+            state: { error: 'Verification error' }
+          });
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    
+    verifyFromState();
+  }, [location.state, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const verifyPaymentAndNavigate = async (txnid) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data } = await axios.post(
+        "https://wallet-application-iglo.onrender.com/api/payment/pay",
+        formData
+      );
+
+      if (data.success) {
+        // Store payment data in localStorage (persists across tabs)
+        localStorage.setItem('pendingPayment', JSON.stringify({
+          txnid: data.paymentData.txnid,
+          timestamp: Date.now()
+        }));
+        
+        // Create and submit form to PayU
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = data.payu_url;
+
+        Object.entries(data.paymentData).forEach(([key, value]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+      }
+    } catch (error) {
+      console.error("Payment Error:", error.response?.data?.message || error.message);
+      alert(error.response?.data?.message || "Payment failed. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  // Function to check pending payments (call this from your Home page)
+  const checkPendingPayment = async () => {
+    const pendingPayment = JSON.parse(localStorage.getItem('pendingPayment'));
+    if (!pendingPayment) return;
+
+    // Clear the pending payment immediately to prevent repeated checks
+    localStorage.removeItem('pendingPayment');
+
+    // Only consider payments initiated in the last 30 minutes
+    if (Date.now() - pendingPayment.timestamp > 30 * 60 * 1000) return;
+
+    setLoading(true);
     try {
       const response = await axios.post(
         "https://wallet-application-iglo.onrender.com/api/payment/verify",
-        { txnid }
+        { txnid: pendingPayment.txnid }
       );
 
       if (response.data.success) {
@@ -47,52 +127,7 @@ const PaymentForm = () => {
           error: 'Error verifying payment'
         }
       });
-    }
-    setLoading(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const { data } = await axios.post(
-        "https://wallet-application-iglo.onrender.com/api/payment/pay",
-        formData
-      );
-
-      if (data.success) {
-        // Store payment data in sessionStorage for later verification
-        sessionStorage.setItem('paymentData', JSON.stringify(data.paymentData));
-        
-        // Create a form and submit it programmatically
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = data.payu_url;
-
-        // Add all payment data as hidden inputs
-        Object.entries(data.paymentData).forEach(([key, value]) => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = value;
-          form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
-
-        // Set up a listener for when the PayU window closes
-        const checkPaymentStatus = setInterval(() => {
-          if (window.closed) { // If the PayU window is closed
-            clearInterval(checkPaymentStatus);
-            // Verify payment status with backend
-            verifyPaymentAndNavigate(data.paymentData.txnid);
-          }
-        }, 1000);
-      }
-    } catch (error) {
-      console.error("Payment Error:", error.response?.data?.message || error.message);
-      alert(error.response?.data?.message || "Payment failed. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
