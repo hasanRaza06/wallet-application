@@ -32,23 +32,30 @@ const PaymentCallbackHandler = () => {
         }
 
         if (status === 'success') {
-          // Verify the payment with your backend
-          const response = await axios.post(
-            'https://wallet-application-iglo.onrender.com/api/payment/verify',
-            { txnid }
-          );
+          try {
+            // Verify the payment with your backend
+            const response = await axios.post(
+              'https://wallet-application-iglo.onrender.com/api/payment/verify',
+              { txnid }
+            );
 
-          if (response.data.success) {
-            // Clear the pending payment from storage
-            localStorage.removeItem('pendingPayment');
-            navigate('/payment/success', {
-              state: {
-                txnid,
-                amount,
-                message: 'Payment successful!'
-              }
-            });
-          } else {
+            if (response.data.success) {
+              // Clear the pending payment from storage
+              localStorage.removeItem('pendingPayment');
+              navigate('/payment/success', {
+                state: {
+                  txnid,
+                  amount,
+                  message: 'Payment successful!'
+                }
+              });
+            } else {
+              navigate('/payment/failure', {
+                state: { error: 'Payment verification failed' }
+              });
+            }
+          } catch (verifyError) {
+            console.error('Verification error:', verifyError);
             navigate('/payment/failure', {
               state: { error: 'Payment verification failed' }
             });
@@ -59,9 +66,9 @@ const PaymentCallbackHandler = () => {
           });
         }
       } catch (error) {
-        console.error('Payment verification error:', error);
+        console.error('Payment callback error:', error);
         navigate('/payment/failure', {
-          state: { error: 'Payment verification failed' }
+          state: { error: 'Payment processing failed' }
         });
       }
     };

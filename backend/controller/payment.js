@@ -54,13 +54,11 @@ export const makePayment = async (req, res) => {
       service_provider: "payu_paisa",
     };
 
-    // Here you should save the payment to your database first
-    // await PaymentModel.create({
-    //   txnid,
-    //   amount,
-    //   status: 'pending',
-    //   // other fields
-    // });
+    console.log('Payment Data:', {
+      ...paymentData,
+      surl: paymentData.surl,
+      furl: paymentData.furl
+    });
 
     res.json({ 
       success: true, 
