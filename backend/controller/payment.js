@@ -14,6 +14,12 @@ const generateHash = (params) => {
   return crypto.createHash("sha512").update(hashString).digest("hex");
 };
 
+// Generate verification hash
+const generateVerificationHash = (txnid) => {
+  const hashString = `${PAYU_MERCHANT_KEY}|verify_payment|${txnid}|${PAYU_MERCHANT_SALT}`;
+  return crypto.createHash("sha512").update(hashString).digest("hex");
+};
+
 // Payment Handler
 export const makePayment = async (req, res) => {
   try {
@@ -41,8 +47,8 @@ export const makePayment = async (req, res) => {
       firstname,
       email,
       phone,
-      surl: `https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app//payment/callback`,
-      furl: `https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app//payment/callback`,
+      surl: `${process.env.FRONTEND_URL}/payment/callback`,
+      furl: `${process.env.FRONTEND_URL}/payment/callback`,
       hash,
       service_provider: "payu_paisa",
     };
@@ -98,20 +104,25 @@ export const paymentWebhook = async (req, res) => {
   }
 };
 
-// In your backend controller
+// Payment verification endpoint
 export const verifyPayment = async (req, res) => {
   try {
     const { txnid } = req.body;
     
-    // 1. First check your database
-    // const payment = await Payment.findOne({ txnid });
+    if (!txnid) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transaction ID is required'
+      });
+    }
+
+    const hash = generateVerificationHash(txnid);
     
-    // 2. If not found, verify with PayU API
     const verificationResponse = await axios.post('https://info.payu.in/merchant/postservice', {
-      key: process.env.PAYU_MERCHANT_KEY,
+      key: PAYU_MERCHANT_KEY,
       command: 'verify_payment',
       var1: txnid,
-      hash: generateVerificationHash(txnid) // Implement this function
+      hash
     });
 
     if (verificationResponse.data.status === 'success') {
@@ -127,6 +138,7 @@ export const verifyPayment = async (req, res) => {
       error: verificationResponse.data.message || 'Payment verification failed'
     });
   } catch (error) {
+    console.error("Verification Error:", error);
     res.status(500).json({
       success: false,
       error: 'Verification error'

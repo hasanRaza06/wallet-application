@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
-import PaymentForm from "./components/payments/PaymenetForm";
+import PaymentForm from "./components/payments/PaymentForm";
 import Success from "./components/payments/Success";
 import Failure from "./components/payments/Failure";
 import PaymentCallbackHandler from "./components/payments/PaymentCallbackHandler";
