@@ -74,6 +74,11 @@ const Home = () => {
       setLoading(false);
     }
   };
+
+  const handlePaymentClick = () => {
+    // Use hash-based navigation
+    window.location.hash = '#/payment';
+  };
   
   return (
     <div className='min-h-screen bg-slate-100'>
@@ -90,7 +95,7 @@ const Home = () => {
               color="primary"
               size="large"
               startIcon={<Payment />}
-              onClick={handleOpen}
+              onClick={handlePaymentClick}
               sx={{
                 padding: '12px 24px',
                 fontSize: '1.1rem',

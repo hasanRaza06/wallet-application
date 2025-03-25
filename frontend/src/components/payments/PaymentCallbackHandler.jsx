@@ -25,9 +25,7 @@ const PaymentCallbackHandler = () => {
         });
 
         if (!txnid) {
-          navigate('/payment/failure', { 
-            state: { error: 'Transaction ID not found' }
-          });
+          window.location.hash = '#/payment/failure';
           return;
         }
 
@@ -42,39 +40,25 @@ const PaymentCallbackHandler = () => {
             if (response.data.success) {
               // Clear the pending payment from storage
               localStorage.removeItem('pendingPayment');
-              navigate('/payment/success', {
-                state: {
-                  txnid,
-                  amount,
-                  message: 'Payment successful!'
-                }
-              });
+              window.location.hash = '#/payment/success';
             } else {
-              navigate('/payment/failure', {
-                state: { error: 'Payment verification failed' }
-              });
+              window.location.hash = '#/payment/failure';
             }
           } catch (verifyError) {
             console.error('Verification error:', verifyError);
-            navigate('/payment/failure', {
-              state: { error: 'Payment verification failed' }
-            });
+            window.location.hash = '#/payment/failure';
           }
         } else {
-          navigate('/payment/failure', {
-            state: { error: error || 'Payment failed' }
-          });
+          window.location.hash = '#/payment/failure';
         }
       } catch (error) {
         console.error('Payment callback error:', error);
-        navigate('/payment/failure', {
-          state: { error: 'Payment processing failed' }
-        });
+        window.location.hash = '#/payment/failure';
       }
     };
 
     handleCallback();
-  }, [navigate, searchParams]);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100">

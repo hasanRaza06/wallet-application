@@ -1,7 +1,7 @@
 import React from "react";
 import SignUp from "./components/SignUp";
 import LogIn from "./components/LogIn";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -14,7 +14,7 @@ const App = () => {
   return (
     <div className="bg-slate-200">
       <Toaster position="top-right" reverseOrder={false} />
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<LogIn />} />
@@ -24,7 +24,7 @@ const App = () => {
           <Route path="/payment/success" element={<Success />} />
           <Route path="/payment/failure" element={<Failure />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 };

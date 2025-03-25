@@ -48,8 +48,8 @@ export const makePayment = async (req, res) => {
       firstname,
       email,
       phone,
-      surl: `${FRONTEND_URL}/payment/callback`,
-      furl: `${FRONTEND_URL}/payment/callback`,
+      surl: `${FRONTEND_URL}/#/payment/callback`,
+      furl: `${FRONTEND_URL}/#/payment/callback`,
       hash,
       service_provider: "payu_paisa",
     };
@@ -71,37 +71,6 @@ export const makePayment = async (req, res) => {
   }
 };
 
-// PayU will call this webhook (configure in PayU dashboard)
-export const paymentWebhook = async (req, res) => {
-  try {
-    const { txnid, status, hash } = req.body;
-    
-    // Verify the hash from PayU
-    const expectedHash = generateHash({
-      key: PAYU_MERCHANT_KEY,
-      txnid,
-      amount: req.body.amount,
-      productinfo: req.body.productinfo,
-      firstname: req.body.firstname,
-      email: req.body.email,
-    });
-
-    if (hash !== expectedHash) {
-      return res.status(400).send("Invalid hash");
-    }
-
-    // Update payment status in your database
-    // await PaymentModel.findOneAndUpdate(
-    //   { txnid },
-    //   { status: status === 'success' ? 'success' : 'failed' }
-    // );
-
-    res.status(200).send("Webhook received");
-  } catch (error) {
-    console.error("Webhook Error:", error);
-    res.status(500).send("Webhook processing failed");
-  }
-};
 
 // Payment verification endpoint
 export const verifyPayment = async (req, res) => {
