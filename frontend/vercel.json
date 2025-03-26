@@ -1,37 +1,8 @@
 {
   "rewrites": [
     {
-      "routes": [
-        {
-          "src": "/payment",
-          "dest": "/index.html",
-          "status": 200
-        },
-        {
-          "src": "/payment/.*",
-          "dest": "/index.html",
-          "status": 200
-        },
-        {
-          "src": "/.*",
-          "dest": "/index.html",
-          "status": 200
-        }
-      ],
-      "rewrites": [
-        { "source": "/payment/:path*", "destination": "/index.html" }
-      ]
-    }
-  ],
-  "headers": [
-    {
       "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
+      "destination": "/index.html"
     }
   ]
-} 
+}

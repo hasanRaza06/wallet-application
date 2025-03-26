@@ -22,7 +22,7 @@ export const makePayment = async (req, res) => {
             email: email,
             phone: mobile,
             surl: `https://wallet-application-sjgp.onrender.com/payment/success`,
-            furl: `https://wallet-application-sjgp.onrender.com/payment/failure`,
+            furl: `https://wallet-application-sjgp.onrender.com/payment/success`,
             hash: hash,
             service_provider: 'payu_paisa',
             currency: 'INR',
