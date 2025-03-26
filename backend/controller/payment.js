@@ -7,7 +7,6 @@ dotenv.config();
 const PAYU_MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY;
 const PAYU_MERCHANT_SALT = process.env.PAYU_MERCHANT_SALT;
 const PAYU_URL = process.env.PAYU_URL;
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app";
 
 // Generate PayU Hash
 const generateHash = (params) => {
@@ -26,11 +25,21 @@ export const makePayment = async (req, res) => {
   try {
     const { amount, firstname, email, phone, productinfo } = req.body;
 
-    if (!amount || !firstname || !email || !phone || !productinfo) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
+    // Validate required fields
+    const requiredFields = ['amount', 'firstname', 'email', 'phone', 'productinfo'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(', ')}`
+      });
     }
 
-    const txnid = "TXN" + Date.now(); // Better transaction ID format
+    // Generate transaction ID
+    const txnid = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
+    // Generate hash with proper parameter order
     const hash = generateHash({
       key: PAYU_MERCHANT_KEY,
       txnid,
@@ -38,36 +47,68 @@ export const makePayment = async (req, res) => {
       productinfo,
       firstname,
       email,
+      // Include empty mandatory parameters in hash generation
+      lastname: '',
+      address1: '',
+      city: '',
+      state: '',
+      country: '',
+      zipcode: '',
+      udf1: '',
+      udf2: '',
+      udf3: '',
+      udf4: '',
+      udf5: ''
     });
 
+    // Construct payment data with all mandatory parameters
     const paymentData = {
       key: PAYU_MERCHANT_KEY,
       txnid,
-      amount,
+      amount: parseFloat(amount).toFixed(2), // Ensure 2 decimal places
       productinfo,
       firstname,
       email,
       phone,
-      surl: `${FRONTEND_URL}/#/payment/callback`,
-      furl: `${FRONTEND_URL}/#/payment/callback`,
+      surl: `http://localhost:5174/payment/success`,
+      furl: `http://localhost:5174/payment/failure`,
       hash,
       service_provider: "payu_paisa",
+      
+      // Mandatory empty parameters
+      lastname: '',
+      address1: '',
+      city: '',
+      state: '',
+      country: 'India',
+      zipcode: '',
+      udf1: '',
+      udf2: '',
+      udf3: '',
+      udf4: '',
+      udf5: ''
     };
 
-    console.log('Payment Data:', {
-      ...paymentData,
-      surl: paymentData.surl,
-      furl: paymentData.furl
+    // Security: Log without sensitive data
+    console.log('Payment Initiated:', { 
+      txnid: paymentData.txnid,
+      amount: paymentData.amount,
+      email: paymentData.email.slice(0, 3) + '***' // Partial email
     });
 
-    res.json({ 
-      success: true, 
-      paymentData, 
-      payu_url: PAYU_URL 
+    res.json({
+      success: true,
+      paymentData,
+      payu_url: PAYU_URL
     });
+
   } catch (error) {
     console.error("Payment Error:", error);
-    res.status(500).json({ success: false, message: "Payment initiation failed" });
+    res.status(500).json({
+      success: false,
+      message: "Payment initiation failed",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

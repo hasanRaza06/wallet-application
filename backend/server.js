@@ -10,6 +10,7 @@ import path from 'path';
 import paymentRoutes from "./payUIntegeration.js";
 import { fileURLToPath } from 'url';
 import bodyParser from "body-parser";
+import { makePayment, verifyPayment } from './controller/paymentFile.js';
 
 // Required for ES module environments
 const __filename = fileURLToPath(import.meta.url);
@@ -19,27 +20,29 @@ dotenv.config(); // ✅ Load environment variables early
 
 const app = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: [
-    "https://wallet-application-iz8f.onrender.com",
-    "https://wallet-application-iglo.onrender.com",
-    "https://wallet-application-ial8i6198-hasan-razas-projects.vercel.app",
-    "http://localhost:5174",
-    "http://localhost:3000",
-    "http://localhost:5173"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-  maxAge: 86400 // 24 hours
-};
+const allowedOrigins = [
+  "https://wallet-application-iz8f.onrender.com",
+  "https://wallet-application-iglo.onrender.com",
+  "http://localhost:5174"
+];
 
-// Apply CORS middleware
-app.use(cors(corsOptions));
+app.use(
+  cors({
+      origin: function (origin, callback) {
+          if (!origin || allowedOrigins.includes(origin)) {
+              callback(null, origin); // Allow if origin is in the list
+          } else {
+              callback(new Error("Not allowed by CORS"));
+          }
+      },
+      credentials: true,
+      allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
 
 // Handle preflight requests
-app.options('*', cors(corsOptions));
+app.options('*', cors());
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
@@ -57,6 +60,10 @@ app.get('/all_users', userMiddleWare, getAllUsers);
 // Account Routes
 app.post('/user/add_account', userMiddleWare, addAccount);
 app.get('/account_details', userMiddleWare, getUserAccounts);
+
+
+app.post("/payment",makePayment);
+app.post("/verify/:txnid",verifyPayment);
 
 // Payment Routes
 app.use("/api/payment", paymentRoutes);
