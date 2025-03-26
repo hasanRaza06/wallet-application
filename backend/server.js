@@ -10,7 +10,7 @@ import path from 'path';
 import paymentRoutes from "./payUIntegeration.js";
 import { fileURLToPath } from 'url';
 import bodyParser from "body-parser";
-import { makePayment, verifyPayment } from './controller/paymentFile.js';
+import { handlePayUCallback, makePayment, verifyPayment } from './controller/paymentFile.js';
 
 // Required for ES module environments
 const __filename = fileURLToPath(import.meta.url);
@@ -64,8 +64,8 @@ app.post('/user/add_account', userMiddleWare, addAccount);
 app.get('/account_details', userMiddleWare, getUserAccounts);
 
 
-app.post("/payment",makePayment);
-app.post("/verify/:txnid",verifyPayment);
+app.post("/api/payment",makePayment);
+app.get("/api/payments/verify",handlePayUCallback);
 
 // Payment Routes
 app.use("/api/payment", paymentRoutes);

@@ -57,7 +57,7 @@ const PaymentPage = () => {
 
     setLoading(true);
     try {
-        const response = await axios.post('http://localhost:3000/payment', formData);
+        const response = await axios.post('https://wallet-application-srk1.onrender.com/api/payment', formData);
         
         if (!response.data?.paymentData || !response.data?.payu_url) {
             throw new Error('Invalid response from payment gateway');
