@@ -21,8 +21,8 @@ export const makePayment = async (req, res) => {
             firstname: firstname,
             email: email,
             phone: mobile,
-            surl: `http://localhost:5174/verify/${txn_id}`,
-            furl: `http://localhost:5174/verify/${txn_id}`,
+            surl: `https://wallet-application-sjgp.onrender.com/payment/success`,
+            furl: `https://wallet-application-sjgp.onrender.com/payment/failure`,
             hash: hash,
             service_provider: 'payu_paisa',
             currency: 'INR',
@@ -48,6 +48,8 @@ export const verifyPayment=async(req,res)=>{
 
           const verified_Data = await payUClient.verifyPayment(req.params.txnid);
           const data = verified_Data.transaction_details[req.params.txnid]
+
+        //   res.redirect(`http://localhost:5174/payment/${data.status}/${data.txnid}`)
 
           if (data.status == 'success') {
              return res.status(200).json({

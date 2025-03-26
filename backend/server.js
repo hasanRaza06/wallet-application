@@ -26,23 +26,25 @@ const allowedOrigins = [
   "http://localhost:5174"
 ];
 
-app.use(
-  cors({
-      origin: function (origin, callback) {
-          if (!origin || allowedOrigins.includes(origin)) {
-              callback(null, origin); // Allow if origin is in the list
-          } else {
-              callback(new Error("Not allowed by CORS"));
-          }
-      },
-      credentials: true,
-      allowedHeaders: ["Content-Type", "Authorization"]
-  })
-);
+// app.use(
+//   cors({
+//       origin: function (origin, callback) {
+//           if (!origin || allowedOrigins.includes(origin)) {
+//               callback(null, origin); // Allow if origin is in the list
+//           } else {
+//               callback(new Error("Not allowed by CORS"));
+//           }
+//       },
+//       credentials: true,
+//       allowedHeaders: ["Content-Type", "Authorization"]
+//   })
+// );
 
 
-// Handle preflight requests
-app.options('*', cors());
+// // Handle preflight requests
+// app.options('*', cors());
+
+app.use(cors());
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); 

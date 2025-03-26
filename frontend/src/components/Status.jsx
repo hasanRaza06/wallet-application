@@ -17,7 +17,7 @@ const Status = () => {
     },[]);
   
     return (
-      <>
+      <>    
             <div className="h-screen flex items-center justify-center flex-col">
               <div className="w-1/2 shadow rounded-md py-5 flex items-center justify-center flex-col gap-y-4">
                     <h1 className='text-4xl text-center'>Status :{status}  </h1>
