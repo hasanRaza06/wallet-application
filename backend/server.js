@@ -7,10 +7,9 @@ import { getAllUsers } from './controller/user.js';
 import { userMiddleWare } from './middleware.js';
 import { addAccount, getUserAccounts } from './controller/account.js';
 import path from 'path';
-import paymentRoutes from "./payUIntegeration.js";
 import { fileURLToPath } from 'url';
 import bodyParser from "body-parser";
-import { handlePayUCallback, makePayment, verifyPayment } from './controller/paymentFile.js';
+import { makePayment, verifyPayment } from './controller/paymentFile.js';
 
 // Required for ES module environments
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +22,8 @@ const app = express();
 const allowedOrigins = [
   "https://wallet-application-iz8f.onrender.com",
   "https://wallet-application-iglo.onrender.com",
-  "http://localhost:5174"
+  "http://localhost:5174",
+  "http://localhost:5173"
 ];
 
 // app.use(
@@ -65,10 +65,9 @@ app.get('/account_details', userMiddleWare, getUserAccounts);
 
 
 app.post("/api/payment",makePayment);
-app.get("/api/payments/verify",handlePayUCallback);
+app.post("/verify/:id",verifyPayment);
 
-// Payment Routes
-app.use("/api/payment", paymentRoutes);
+
 
 // ✅ Serve Frontend (Vite uses "dist" instead of "build")
 const frontendPath = path.resolve(__dirname, '../frontend/dist');

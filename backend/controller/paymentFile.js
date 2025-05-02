@@ -21,8 +21,8 @@ export const makePayment = async (req, res) => {
             firstname: firstname,
             email: email,
             phone: mobile,
-            surl: `https://wallet-application-srk1.onrender.com/api/payments/verify`,
-            furl: `https://wallet-application-srk1.onrender.com/api/payments/verify`,
+            surl: `http://localhost:3000/verify/${txn_id}`,
+            furl: `http://localhost:3000/verify/${txn_id}`,
             hash: hash,
             service_provider: 'payu_paisa',
             currency: 'INR',
@@ -44,24 +44,18 @@ export const makePayment = async (req, res) => {
 // Add to your backend
 export const handlePayUCallback = async (req, res) => {
     try {
-      // 1. Extract parameters
-      const { mihpayid, status, hash, txnid } = req.query;
-  
-      // 2. Validate hash (MANDATORY)
-      const hashString = `${payU_salt}|${status}|||||||||||${req.query.email}|${req.query.firstname}|${req.query.productinfo}|${req.query.amount}|${txnid}${payU_key}`;
-      const generatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
-  
-      // 3. Security check
-      if (generatedHash !== hash) {
-        return res.redirect('https://wallet-application-sand.vercel.app/#/payment/failure?reason=invalid_hash');
+        const data = await payUClient.verifyPayment(req.params.id);
+        const status = data.transaction_details[req.params.id];
+        console.log(data);
+        if (status.status === "success") {
+          res.redirect("http://localhost:5174/payment/success");
+        } else {
+          res.redirect("http://localhost:5174/payment/failure");
+        }
+      } catch (error) {
+        console.error("Error verifying payment:", error);
+        res.status(500).send(error);
       }
-  
-      // 4. Successful payment handling
-      res.redirect(`https://wallet-application-sand.vercel.app/#/payment/success?txnid=${mihpayid}`);
-      
-    } catch (error) {
-      res.redirect('https://wallet-application-sand.vercel.app/#/payment/failure');
-    }
   };
 
 // Add to your backend code
