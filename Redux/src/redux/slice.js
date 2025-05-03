@@ -3,7 +3,16 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState={
     count:0,
     backendPath:"http://localhost:3000",
-    userDetail:{}
+    userDetail:{},
+    listItems:[
+        { name: "Product", icon: "ShoppingCart" },
+    { name: "Orders", icon: "ListAlt" },
+    { name: "Brand", icon: "BrandingWatermark" },
+    { name: "Colors", icon: "ColorLens" },
+    { name: "Product Conditions", icon: "NewReleases" },
+    { name: "Ip-address List", icon: "Security" },
+    { name: "Size List", icon: "Business" },
+    ]
 }
 
 export const mainSlice=createSlice({
